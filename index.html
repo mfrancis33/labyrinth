@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Labyrinth</title>
+		<link rel="stylesheet" type="text/css" href="index.css">
+	</head>
+	<body>
+		<form id="options" class="active">
+			<h1 class="row">Labyrinth</h1>
+			<hr class="row">
+			<h3 class="row">Basics</h3>
+			<label for="input-players">Players:<br><small><i>Additional players are AI</i></small></label>
+			<div>
+				<select name="players" id="input-players">
+					<option value="2">2 players</option>
+					<option value="3">3 players</option>
+					<option value="4" selected>4 players</option>
+					<option value="5">5 players</option>
+					<option value="6">6 players</option>
+					<option value="7">7 players</option>
+					<option value="8">8 players</option>
+				</select>
+			</div>
+			<label for="input-size">Maze size:</label>
+			<div>
+				<select name="size" id="input-size">
+					<option value="d" selected>Standard (10)</option>
+					<option value="s">Small (4-7)</option>
+					<option value="m">Medium (8-10)</option>
+					<option value="l">Large (11-14)</option>
+					<option value="g">Gargantuan (15-18)</option>
+				</select>
+			</div>
+			<label for="input-show-players">Show players</label>
+			<label><input type="checkbox" name="show-players" id="input-show-players"> Show players</label>
+			<hr class="row">
+			<h3 class="row">Additions</h3>
+			<p>World Features</p>
+			<div>
+				<label><input type="checkbox" name="wormholes" checked> Wormholes</label><br>
+				<label><input type="checkbox" name="rivers" disabled> Rivers</label><br>
+				<label><input type="checkbox" name="traps" checked> Traps</label><br>
+				<label><input type="checkbox" name="fake-treasure" checked> Fake Treasure</label>
+			</div>
+			<p>Creatures</p>
+			<div>
+				<label><input type="checkbox" name="creatures"> Enable creatures</label>
+			</div>
+			<hr class="row">
+			<button type="submit" class="row">Play!</button>
+		</form>
+		<div id="help">
+			<h1>Labyrinth &mdash; How to Play</h1>
+			<p>Welcome to <i>Labyrinth</i>! This is a digitized version of a paper-and-pencil game which originates from the Soviet Union in the 1970s. Normally, this would be played by at least 3 players, one of which is a 'game master'. However, since this is on a computer, the game master can be the computer and we can replace the other players with AI except one: for you, because you need to be able to play! Also, the rules have been adapted with playing on a computer in mind.</p>
+			<h3>Basic gameplay</h3>
+			<p>At the start of the game, you and all other players are randomly placed into a maze. This maze and its contents (which includes walls, exits, and players) are known only to the game master; all other players must figure out information themselves. More than one player can be in a spot on the maze. Each player has a weapon pack, containing grenades, a gun with ammunition, and a weak dagger. You win if you retrieve the treasure and escape through one of the maze's exits (there can be one or multiple). Alternatively, the game ends when there is only one player left alive.</p>
+			<p>On a player's turn, they may attempt to move in a specified direction. If they hit a wall, the type of wall will be announced to them (common or edge, which is called a monolith). Alternatively, they may pass their move opportunity. </p>
+			<p>In a turn, they may also use a weapon once. Here are what weapons can do:</p>
+			<ul>
+				<li>A <b>grenade</b> will blow up a wall permanently, assuming this wall is not a monlith. If a grenade is not thrown on a wall, it will wound or kill any player in the neighboring space.</li>
+				<li>A <b>gun</b> will shoot a bullet in a direction, which travels until it hits a wall or player. The player, if hit, will be wounded or killed. A gun can only be shot if they have ammunition.</li>
+				<li>A <b>knife</b> will wound or kill a player in the same space as the user. The used knife is then discarded.</li>
+			</ul>
+			<p>A player has a maximum of two lives. With one life, a player is considered "wounded" and is not able to carry treasure, and should go to a hospital to heal. When a player runs out of lives, they are out of the game. A player starts with maximum health.</p>
+			<p>There exist several things in the maze which the player will encounter:</p>
+			<ul>
+				<li><b>Treasure</b>: there is always one real treasure in the maze; however, there can be fake treasure too, and it's not just limited to one! Treasure can be carried by a player that is not wounded. If a player is wounded while carrying treasure, they drop it and cannot pick it up until they are at full health again.</li>
+				<li><b>Arsenal</b>: there exists one of these in the maze, though there is a chance for more on larger maps. In these rooms, players can restock their weapons.</li>
+				<li><b>Hospital</b>: similar to the arsenal, there exists one of these in the maze, though there is a chance for more on larger maps. In these rooms, players can heal to max health.</li>
+				<li><b>Wormholes</b>: there are several wormholes throughout the map. When a player lands on one of these, they get teleported to the next wormhole. The wormholes form a loop. It is unknown the number of wormholes in a map at the start, though there are more on larger maps.</li>
+				<li><b>River</b>: has a start and an end. There are few of these on maps, rarely none at all, though there tend to be more on larger maps. For every turn a player is on a river, they move down the river two spaces until they are at the end.</li>
+				<li><b>Pitfall traps</b> <i>(optional)</i>: there can be a few of these littered around the map. Landing on these spaces will make a player lose their turn for three turns.</li>
+				<li><b>Crossbow traps</b> <i>(optional)</i>: there can be a few of these littered around the map. Landing on these spaces will wound or kill a player once; after that it becomes broken.</li>
+			</ul>
+			<h3>Additional notes</h3>
+			<p>There are not many English references to this game online and there seem to be a lot of variations you can add to the game, so this version's rules may not be consistent with other versions of this game which exist.</p>
+		</div>
+		<div id="game">
+			<div>
+				<!--<h1>Controls</h1>-->
+				<h1>Labyrinth</h1>
+				<hr>
+				<div id="status">
+					<h3>Status</h3>
+					<p>Health: <span data-id="health">full</span></p>
+				</div>
+				<div id="controls">
+					<hr>
+					<h3>Move</h3>
+					<div class="joystick">
+						<span></span>
+						<span>&uarr;</span>
+						<span></span>
+						<span>&larr;</span>
+						<span></span>
+						<span>&rarr;</span>
+						<span></span>
+						<span>&darr;</span>
+						<span></span>
+					</div>
+				</div>
+			</div>
+			<div style="display: flex; align-items: center; justify-content: center;">
+				<!--<h1>Labyrinth</h1>
+				<hr>-->
+				<canvas id="gameplay" width="1000" height="1000"></canvas>
+			</div>
+			<div>
+				<div id="console"></div>
+				<hr>
+				<div id="players">
+					<!--<h3>Players</h3>
+					<hr>-->
+				</div>
+			</div>
+		</div>
+		<script src="labyrinth.js"></script>
+	</body>
+</html>
