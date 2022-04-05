@@ -17,13 +17,16 @@ h1, h2, h3, h4, h5, h6 {
 	text-align: center;
 }
 
+a {
+	color: inherit;
+}
+
 body > *:not(.active) {
 	display: none !important;
 }
 
 #options {
 	display: inline-grid;
-	/*align-items: center;*/
 	grid-template-columns: 1fr 1fr;
 	gap: 1rem 2rem;
 }
@@ -36,6 +39,7 @@ body > *:not(.active) {
 
 #help {
 	text-align: left;
+	width: 80%;
 }
 
 #game {
@@ -50,6 +54,13 @@ body > *:not(.active) {
 }
 #game > * {
 	overflow-y: auto;
+}
+
+#container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
 }
 
 canvas {
@@ -80,14 +91,36 @@ canvas {
 	padding: 4px;
 	transition: background-color 0.4s ease-in-out;
 }
-.joystick *:not(:empty):hover {
-	background-color: #fff1;
+.joystick *:not(:empty):hover, .joystick .active {
+	background-color: #fff2;
 	cursor: pointer;
+}
+
+#controls:not(.active) {
+	display: none;
 }
 
 #console {
 	height: 20em;
 	overflow-y: auto;
+	border-radius: 8px;
+	padding: 8px;
+	border: 1px solid currentColor;
+	margin: 0 8px;
+}
+
+fieldset {
+	border-radius: 8px;
+	padding: 8px;
+	border: 1px solid currentColor;
+	margin-bottom: 8px;
+}
+legend {
+	text-align: left !important;
+	margin-left: 8px;
+}
+legend * {
+	margin: 0;
 }
 
 details {

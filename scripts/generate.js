@@ -152,7 +152,7 @@
 	}
 	
 	// Remove some cell walls
-	let toRemove = Math.round(size * 1.5);
+	let toRemove = Math.round(size * 2.5);
 	while(toRemove > 0){
 		let cell = maze[Math.floor(Math.random() * size)][Math.floor(Math.random() * size)];
 		let availableWalls = [];
@@ -235,6 +235,9 @@ function generateFeatures(features){
 	// Generate traps
 	if(features.traps){
 		// Figure out how many traps we want of each type
+		let numCrossbowTraps = randomInt(0, Math.round(size / 5));
+		let numPitfallTraps = randomInt(0, Math.round(size / 5));
+		// 
 	}
 }
 
@@ -277,13 +280,16 @@ function generatePlayers(){
 
 		let placed = false;
 		let x, y;
+		let count = 0;
 		do {
 			x = randomInt(0, maze.length - 1);
 			y = randomInt(0, maze.length - 1);
-			if(maze[x][y].features.length === 0 && Math.ceil(distance(x, y, treasure.x, treasure.y)) > maze.length / 2){
+			if(maze[x][y].features.length === 0 && Math.ceil(distance(x, y, treasure.x, treasure.y)) > maze.length / 3){
 				placed = true;
 			}
+			count++;
+			if(count > 50) break;
 		} while(!placed);
-		playerList.push(new Player(i, x, y));
+		playerList.push(new Player(i, x, y, new RandomAI()));
 	}
 }

@@ -63,4 +63,20 @@ function goTo(to){
  */
 function printConsole(html){
 	elemConsole.appendChild(document.createElement("p")).innerHTML = html;
+	elemConsole.scrollTop = elemConsole.scrollHeight;
+}
+
+function directionToString(direction){
+	switch(direction){
+		case DIRECTIONS.TOP:
+			return "up";
+		case DIRECTIONS.RIGHT:
+			return "right";
+		case DIRECTIONS.BOTTOM:
+			return "down";
+		case DIRECTIONS.LEFT:
+			return "left";
+		default:
+			return "nowhere";
+	}
 }

@@ -2,10 +2,13 @@
 const canvas = document.getElementById("gameplay");
 const ctx = canvas.getContext("2d");
 
+/** @type {HTMLFormElement} */
 const elemOptions = document.getElementById("options");
 const elemHelp = document.getElementById("help");
 const elemGame = document.getElementById("game");
 
+/** @type {HTMLFormElement} */
+const elemControls = document.getElementById("controls");
 const elemConsole = document.getElementById("console");
 const elemPlayers = document.getElementById("players");
 const elemStatus = document.getElementById("status");
@@ -40,7 +43,9 @@ const PLAYER_COLORS = Object.freeze([
 /** @type {Cell[][]} */
 var maze;
 var players = 4;
+/** @type {Player[]} */
 var playerList = [];
+var playerTurn = 0;
 var showPlayers = true;
 var treasure;
 
@@ -92,10 +97,118 @@ elemOptions.onsubmit = function(e){
 
 	elemOptions.classList.remove("active");
 	elemGame.classList.add("active");
+
+	gameplay();
+}
+
+elemControls.onsubmit = function(e){
+	// Default so that page doesn't reload by accident
+	e.preventDefault();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+document.getElementById("move-up").onclick = function(){
+	document.getElementById("move-direction").value = "up";
+	document.getElementById("move-left").classList.remove("active");
+	document.getElementById("move-right").classList.remove("active");
+	document.getElementById("move-down").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("move-right").onclick = function(){
+	document.getElementById("move-direction").value = "right";
+	document.getElementById("move-up").classList.remove("active");
+	document.getElementById("move-left").classList.remove("active");
+	document.getElementById("move-down").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("move-down").onclick = function(){
+	document.getElementById("move-direction").value = "down";
+	document.getElementById("move-up").classList.remove("active");
+	document.getElementById("move-left").classList.remove("active");
+	document.getElementById("move-right").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("move-left").onclick = function(){
+	document.getElementById("move-direction").value = "left";
+	document.getElementById("move-up").classList.remove("active");
+	document.getElementById("move-right").classList.remove("active");
+	document.getElementById("move-down").classList.remove("active");
+	this.classList.add("active");
+}
+
+document.getElementById("use-up").onclick = function(){
+	document.getElementById("use-direction").value = "up";
+	document.getElementById("use-left").classList.remove("active");
+	document.getElementById("use-right").classList.remove("active");
+	document.getElementById("use-down").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("use-right").onclick = function(){
+	document.getElementById("use-direction").value = "right";
+	document.getElementById("use-up").classList.remove("active");
+	document.getElementById("use-left").classList.remove("active");
+	document.getElementById("use-down").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("use-down").onclick = function(){
+	document.getElementById("use-direction").value = "down";
+	document.getElementById("use-up").classList.remove("active");
+	document.getElementById("use-left").classList.remove("active");
+	document.getElementById("use-right").classList.remove("active");
+	this.classList.add("active");
+}
+document.getElementById("use-left").onclick = function(){
+	document.getElementById("use-direction").value = "left";
+	document.getElementById("use-up").classList.remove("active");
+	document.getElementById("use-right").classList.remove("active");
+	document.getElementById("use-down").classList.remove("active");
+	this.classList.add("active");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function gameplay(){
+	// If the user is up, show controls
+	if(playerTurn === 0){
+		printConsole("<hr>");
+		elemControls.classList.add("active");
+
+		// Reset controls
+		document.getElementById("turn-move").checked = true;
+		document.getElementById("turn-use").checked = false;
+
+		document.getElementById("move-direction").value = "";
+		document.getElementById("use-direction").value = "";
+
+		document.getElementById("move-up").classList.remove("active");
+		document.getElementById("move-left").classList.remove("active");
+		document.getElementById("move-right").classList.remove("active");
+		document.getElementById("move-down").classList.remove("active");
+
+		document.getElementById("use-up").classList.remove("active");
+		document.getElementById("use-left").classList.remove("active");
+		document.getElementById("use-right").classList.remove("active");
+		document.getElementById("use-down").classList.remove("active");
+	}
+
+	// Wait for the player to make their move
+	await playerList[playerTurn].turn();
+
+	// If the user has made their move, hide controls
+	if(playerTurn === 0){
+		elemControls.classList.remove("active");
+	}
+
+	// Add a bit more delay for funsies
+	await new Promise(resolve => setTimeout(resolve, 500));
+
+	playerTurn++;
+	playerTurn %= playerList.length;
+	gameplay();
+}
 
 /**
  * Draws stuff on the gameplay canvas

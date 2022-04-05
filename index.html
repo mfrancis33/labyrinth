@@ -7,8 +7,24 @@
 		<link rel="stylesheet" type="text/css" href="index.css">
 	</head>
 	<body>
+		<noscript>
+			<style>
+				body > * {
+					display: none !important;
+				}
+				noscript {
+					display: block !important;
+					width: 80%;
+				}
+			</style>
+			<h1>Uh oh!</h1>
+			<p>Your JavaScript is disabled. Please turn it on and reload the page, as JavaScript is necessary to play this game.</p>
+			<p>If you are using a browser that does not support JavaScript, please use a different browser.</p>
+		</noscript>
 		<form id="options" class="active">
 			<h1 class="row">Labyrinth</h1>
+			<hr class="row">
+			<p class="row" style="text-align: center;"><a href="javascript:goTo('help');">How to play</a></p>
 			<hr class="row">
 			<h3 class="row">Basics</h3>
 			<label for="input-players">Players:<br><small><i>Additional players are AI</i></small></label>
@@ -76,6 +92,8 @@
 			</ul>
 			<h3>Additional notes</h3>
 			<p>There are not many English references to this game online and there seem to be a lot of variations you can add to the game, so this version's rules may not be consistent with other versions of this game which exist.</p>
+			<hr>
+			<p><a href="javascript:goTo('options');">Back to menu</a></p>
 		</div>
 		<div id="game">
 			<div>
@@ -86,23 +104,54 @@
 					<h3>Status</h3>
 					<p>Health: <span data-id="health">full</span></p>
 				</div>
-				<div id="controls">
+				<form id="controls">
 					<hr>
-					<h3>Move</h3>
-					<div class="joystick">
-						<span></span>
-						<span>&uarr;</span>
-						<span></span>
-						<span>&larr;</span>
-						<span></span>
-						<span>&rarr;</span>
-						<span></span>
-						<span>&darr;</span>
-						<span></span>
-					</div>
-				</div>
+					<fieldset>
+						<legend><h3><label><input type="checkbox" id="turn-move" name="move" checked> Move</label></h3></legend>
+						<div class="joystick">
+							<span></span>
+							<span id="move-up">&uarr;</span>
+							<span></span>
+							<span id="move-left">&larr;</span>
+							<span></span>
+							<span id="move-right">&rarr;</span>
+							<span></span>
+							<span id="move-down">&darr;</span>
+							<span></span>
+						</div>
+						<input type="hidden" name="move-direciton" id="move-direction">
+					</fieldset>
+					<fieldset>
+						<legend><h3><label><input type="checkbox" id="turn-use" name="use"> Use Weapon</label></h3></legend>
+						<style>
+							select[data-value="knife"] ~ * {
+								display: none;
+							}
+						</style>
+						<select data-value="gun" onchange="this.dataset.value = this.value" name="weapon" style="margin-bottom: 8px">
+							<option value="gun" selected>Use Gun</option>
+							<option value="knife">Use Dagger</option>
+							<option value="grenade">Use Grenade</option>
+						</select>
+						<div class="joystick">
+							<span></span>
+							<span id="use-up">&uarr;</span>
+							<span></span>
+							<span id="use-left">&larr;</span>
+							<span></span>
+							<span id="use-right">&rarr;</span>
+							<span></span>
+							<span id="use-down">&darr;</span>
+							<span></span>
+						</div>
+						<input type="hidden" name="use-direction" id="use-direction">
+					</fieldset>
+					<fieldset>
+						<button type="submit">Go!</button>
+					</fieldset>
+				</form>
 			</div>
-			<div style="display: flex; align-items: center; justify-content: center;">
+			<div id="container">
 				<!--<h1>Labyrinth</h1>
 				<hr>-->
 				<canvas id="gameplay" width="1000" height="1000"></canvas>
@@ -117,6 +166,7 @@
 			</div>
 		</div>
 		<script src="scripts/utils.js"></script>
+		<script src="scripts/ai.js"></script>
 		<script src="scripts/classes.js"></script>
 		<script src="scripts/generate.js"></script>
 		<script src="scripts/labyrinth.js"></script>

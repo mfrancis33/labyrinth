@@ -1,3 +1,45 @@
+class Turn {
+	move;
+	use;
+
+	/**
+	 * Creates a "turn", a wrapper object for which direction to move and what
+	 * weapon to use, if any.
+	 * @param {number | null} move Either a direction to move or null (for none)
+	 * @param {Use | null} use Either an object specifying which weapon and
+	 * which direction (optional) or null (for none)
+	 */
+	constructor(move=null, use=null){
+		this.move = move;
+		this.use = use;
+	}
+}
+
+class Use {
+	weapon;
+	direction;
+
+	/**
+	 * Creates a "Use" for a turn. A wrapper object.
+	 * @param {string | null} weapon Either "gun", "knife", or "grenade" to use a weapon, or null to not use one.
+	 * @param {number | null} direction A direction from the {@link DIRECTIONS} enum or null. Optional.
+	 */
+	constructor(weapon=null, direction=null){
+		if(weapon === "gun" || weapon === "knife" || weapon === "grenade" || weapon === null){
+			this.weapon = weapon;
+			if((weapon !== "knife" && weapon !== null) && (direction === null || typeof direction !== "number")){
+				// Pick a random direction if none was specified
+				direction = Object.values(DIRECTIONS)[randomInt(0, 3)];
+				printConsole("No direction was specified; picking random");
+				// throw "Direction required! Please use 'DIRECTIONS' enum";
+			}
+			this.direction = direction;
+		} else {
+			throw "Appropriate weapon required!";
+		}
+	}
+}
+
 class Player {
 	health = 2;
 	id;
@@ -5,14 +47,44 @@ class Player {
 	container;
 	canMove = true;
 	treasure;
+	/** @type {AI} */
+	ai;
 	
-	constructor(id, x, y){
+	/**
+	 * Creates a "player" object
+	 * @param {number} id The player id
+	 * @param {number} x The starting x position
+	 * @param {number} y The starting y position
+	 * @param {AI} ai The AI to use in controlling the player
+	 */
+	constructor(id, x, y, ai=new AI(this)){
 		this.id = id;
 		this.x = x || 0;
 		this.y = y || 0;
 		this.container = document.querySelector("[data-player='" + id + "']");
+		this.ai = ai;
+		ai.player = this;
 
 		maze[this.x][this.y].players.push(this);
+	}
+
+	turn(){
+		return new Promise(async resolve => {
+			// If we are dead or can't move, don't do anything
+			if(this.health === 0 || !this.canMove) resolve();
+
+			// Let the AI think
+			/** @type {Turn} */
+			const turn = await this.ai.turn();
+			// Debug
+			if(turn.use !== null){
+				printConsole(`Player ${this.id} went ${directionToString(turn.move)} and used ${turn.use.weapon}${turn.use.weapon !== "knife" ? " in direction " + directionToString(turn.use.direction) : ""}.`);
+			} else {
+				printConsole(`Player ${this.id} went ${directionToString(turn.move)}.`);
+			}
+
+			resolve();
+		});
 	}
 	
 	damage(){
@@ -47,6 +119,7 @@ class Player {
 class UserPlayer extends Player {
 	constructor(x, y){
 		super(1, x, y);
+		this.ai = new UserAI(this);
 		this.container = elemStatus;
 	}
 }
