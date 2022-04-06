@@ -199,11 +199,10 @@ function generateFeatures(features){
 	const size = maze.length;
 
 	// Generate treasure
-	((x, y) => {
-		// for local variables
-		treasure = new Treasure(x, y);
-		maze[x][y].features.push(treasure);
-	})(randomInt(0, size - 1), randomInt(0, size - 1));
+	const treasureX = randomInt(0, size - 1);
+	const treasureY = randomInt(0, size - 1);
+	treasure = new Treasure(treasureX, treasureY);
+	maze[treasureX][treasureY].features.push(treasure);
 
 	// Generate wormholes
 	if(features.wormholes){
@@ -216,7 +215,7 @@ function generateFeatures(features){
 			do {
 				x = randomInt(0, size - 1);
 				y = randomInt(0, size - 1);
-			} while(maze[x][y].features.findIndex(feature => feature.name == "wormhole") > -1);
+			} while((x !== treasureX && y !== treasureY) && maze[x][y].features.findIndex(feature => feature.name == "wormhole") > -1);
 			let wormhole = new Wormhole(x, y, i+1);
 			maze[x][y].features.push(wormhole);
 			wormholeStore.push(wormhole);

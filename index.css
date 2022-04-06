@@ -107,6 +107,8 @@ canvas {
 	padding: 8px;
 	border: 1px solid currentColor;
 	margin: 0 8px;
+	text-align: left;
+	font-size: 75%;
 }
 
 fieldset {

@@ -80,3 +80,18 @@ function directionToString(direction){
 			return "nowhere";
 	}
 }
+
+function wallToString(wallType, article=false){
+	switch(wallType){
+		case WALL_TYPES.NONE:
+			return "nothing";
+		case WALL_TYPES.NORMAL:
+			return (article ? "a " : "") + "wall"
+		case WALL_TYPES.MONOLITH:
+			return (article ? "a " : "") + "monolith";
+		case WALL_TYPES.EXIT:
+			return (article ? "an " : "") + "exit";
+		default:
+			return "unknown";
+	}
+}

@@ -109,6 +109,10 @@ elemControls.onsubmit = function(e){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+document.getElementById("turn-move").onchange = document.getElementById("turn-use").onchange = function(){
+	this.parentElement.parentElement.parentElement.dataset.check = this.checked ? "yes" : "no";
+}
+
 document.getElementById("move-up").onclick = function(){
 	document.getElementById("move-direction").value = "up";
 	document.getElementById("move-left").classList.remove("active");
@@ -171,6 +175,13 @@ document.getElementById("use-left").onclick = function(){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function gameplay(){
+	if(playerList[playerTurn].health === 0){
+		playerTurn++;
+		playerTurn %= playerList.length;
+		gameplay();
+		return;
+	}
+
 	// If the user is up, show controls
 	if(playerTurn === 0){
 		printConsole("<hr>");
@@ -179,6 +190,8 @@ async function gameplay(){
 		// Reset controls
 		document.getElementById("turn-move").checked = true;
 		document.getElementById("turn-use").checked = false;
+		document.getElementById("turn-move").onchange();
+		document.getElementById("turn-use").onchange();
 
 		document.getElementById("move-direction").value = "";
 		document.getElementById("use-direction").value = "";
@@ -202,8 +215,12 @@ async function gameplay(){
 		elemControls.classList.remove("active");
 	}
 
+	// Redraw
+	// TODO: update canvas for specific player
+	drawMaze();
+
 	// Add a bit more delay for funsies
-	await new Promise(resolve => setTimeout(resolve, 500));
+	await new Promise(resolve => setTimeout(resolve, 250));
 
 	playerTurn++;
 	playerTurn %= playerList.length;
@@ -324,10 +341,12 @@ function drawMaze(){
 
 			// Draw players
 			let numPlayers = maze[x][y].players.length;
+			ctx.font = (Math.floor(canvas.width / size / 3) - 8) +  "px sans-serif";
+			ctx.textBaseline = "bottom";
 			for(let i = 0; i < numPlayers; i++){
 				let player = maze[x][y].players[i];
 
-				ctx.fillStyle = PLAYER_COLORS[player.id];
+				ctx.fillStyle = PLAYER_COLORS[player.id] + (player.health === 0 ? "bb" : "");
 				
 				// Put shapes to represent players
 				// TODO: individual shapes for players
@@ -350,6 +369,7 @@ function drawMaze(){
 				ctx.beginPath();
 				ctx.arc(coords[0], coords[1], 24 - size, 0, Math.PI * 2, false);
 				ctx.fill();
+				ctx.fillText("P" + player.id, coords[0], coords[1] - (28 - size));
 			}
 		}
 	}

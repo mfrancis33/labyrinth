@@ -68,19 +68,179 @@ class Player {
 		maze[this.x][this.y].players.push(this);
 	}
 
+	/**
+	 * Takes a turn as a player.
+	 * 
+	 * **IMPORTANT NOTE:** For classes extending the default Player class, DO NOT OVERRIDE
+	 * THIS METHOD IF YOU DO NOT KNOW WHAT YOU ARE DOING!!!
+	 * 
+	 * @returns A promise that must be awaited to ensure things are done.
+	 */
 	turn(){
 		return new Promise(async resolve => {
 			// If we are dead or can't move, don't do anything
-			if(this.health === 0 || !this.canMove) resolve();
+			if(this.health === 0 || !this.canMove){
+				resolve();
+				return;
+			}
 
 			// Let the AI think
 			/** @type {Turn} */
 			const turn = await this.ai.turn();
-			// Debug
+			
+			// If we didn't do anything, say so.
+			if(turn.move === null && turn.use === null){
+				printConsole("Player " + this.id + " did nothing.");
+				resolve();
+				return;
+			}
+
+			let couldMove = true;
+
+			// Deal with moving
+			if(turn.move !== null){
+				// Is there a wall?
+				let wall = maze[this.x][this.y].getWall(turn.move);
+				if(wall === WALL_TYPES.NONE){
+					// Can move
+					maze[this.x][this.y].players.splice(maze[this.x][this.y].players.indexOf(this), 1);
+					switch(turn.move){
+						case DIRECTIONS.TOP:
+							this.y--;
+							break;
+						case DIRECTIONS.RIGHT:
+							this.x++;
+							break;
+						case DIRECTIONS.BOTTOM:
+							this.y++;
+							break;
+						case DIRECTIONS.LEFT:
+							this.x--;
+							break;
+						default:
+							alert("Something went wrong");
+							console.error("Illegal direction: ", turn.move);
+					}
+					maze[this.x][this.y].players.push(this);
+				} else {
+					// Cannot move
+					couldMove = false;
+				}
+			}
+
+			// Deal with using weapons
+			let weaponUse = "";
 			if(turn.use !== null){
-				printConsole(`Player ${this.id} went ${directionToString(turn.move)} and used ${turn.use.weapon}${turn.use.weapon !== "knife" ? " in direction " + directionToString(turn.use.direction) : ""}.`);
-			} else {
-				printConsole(`Player ${this.id} went ${directionToString(turn.move)}.`);
+				if(turn.use.weapon === "gun"){
+					// Gun
+					weaponUse = "used a gun, shooting ";
+					if(typeof turn.use.direction !== "number"){
+						weaponUse = "wanted to use a gun, but didn't know where to shoot";
+					} else if(maze[this.x][this.y].getWall(turn.use.direction) !== WALL_TYPES.NONE){
+						// Wall in cell preventing gunshot
+						weaponUse += "a wall";
+					} else {
+						// Simulate bullet
+						let i = 1;
+						let bulletHit = false;
+						let hitCell;
+						do {
+							switch(turn.use.direction){
+								case DIRECTIONS.TOP:
+									hitCell = maze[this.x][this.y-i];
+									break;
+								case DIRECTIONS.RIGHT:
+									hitCell = maze[this.x+i][this.y];
+									break;
+								case DIRECTIONS.BOTTOM:
+									hitCell = maze[this.x][this.y+i];
+									break;
+								case DIRECTIONS.LEFT:
+									hitCell = maze[this.x-i][this.y];
+									break;
+							}
+							bulletHit = hitCell.players.length > 0 || hitCell.getWall(turn.use.direction) !== WALL_TYPES.NONE;
+							i++;
+						} while(!bulletHit);
+
+						// Check what bullet hit
+						if(hitCell.players.length > 0){
+							let players = [...hitCell.players]; //clone array
+							let target = players[randomInt(0, players.length-1)];
+							target.damage();
+							weaponUse += "player " + target.id + ", " + (target.health === 0 ? "killing" : "wounding") + " them";
+						} else {
+							weaponUse += "a wall";
+						}
+					}
+				} else if(turn.use.weapon === "grenade"){
+					// Grenade
+					if(typeof turn.use.direction !== "number"){
+						weaponUse = "wanted to use a grenade, but didn't know where to throw it";
+					} else if(maze[this.x][this.y].getWall(turn.use.direction) !== WALL_TYPES.NONE){
+						// Wall in cell preventing gunshot
+						weaponUse = "threw a grenade " + directionToString(turn.use.direction) + ", ";
+						if(maze[this.x][this.y].getWall(turn.use.direction) !== WALL_TYPES.NORMAL){
+							weaponUse += "but the wall didn't blow up";
+						} else {
+							weaponUse += "blowing up the wall";
+							maze[this.x][this.y].walls[turn.use.direction] = WALL_TYPES.NONE;
+							switch(turn.use.direction){
+								case DIRECTIONS.TOP:
+									maze[this.x][this.y-1].walls[DIRECTIONS.BOTTOM] = WALL_TYPES.NONE;
+									break;
+								case DIRECTIONS.RIGHT:
+									maze[this.x+1][this.y].walls[DIRECTIONS.LEFT] = WALL_TYPES.NONE;
+									break;
+								case DIRECTIONS.BOTTOM:
+									maze[this.x][this.y+1].walls[DIRECTIONS.TOP] = WALL_TYPES.NONE;
+									break;
+								case DIRECTIONS.LEFT:
+									maze[this.x-1][this.y].walls[DIRECTIONS.RIGHT] = WALL_TYPES.NONE;
+									break;
+								default:
+									alert("Something went wrong");
+									console.error("Illegal direction: ", turn.move);
+							}
+						}
+					} else {
+						weaponUse = "threw a grenade " + directionToString(turn.use.direction) + ", but they didn't hit a wall";
+					}
+				} else {
+					// Knife
+					weaponUse = "stabbed into the darkness and hit ";
+					let players = [...maze[this.x][this.y].players]; //clone array
+					players.splice(players.indexOf(this), 1);
+					if(players.length > 0){
+						// Hit someone
+						let target = players[randomInt(0, players.length-1)];
+						target.damage();
+						weaponUse += "player " + target.id + ", " + (target.health === 0 ? "killing" : "wounding") + " them";
+					} else {
+						// Hit nothing
+						weaponUse += "nothing";
+					}
+				}
+			}
+
+			// Print message
+			if(turn.move !== null && turn.use !== null){
+				// Moving and weapons
+				if(couldMove){
+					printConsole(`Player ${this.id} moved ${directionToString(turn.move)} and ${weaponUse}.`);
+				} else {
+					printConsole(`Player ${this.id} tried moving ${directionToString(turn.move)} but ran into ${wallToString(maze[this.x][this.y].getWall(turn.move), true)}. They also ${weaponUse}.`);
+				}
+			} else if(turn.move !== null){
+				// Moving only
+				if(couldMove){
+					printConsole(`Player ${this.id} moved ${directionToString(turn.move)}.`);
+				} else {
+					printConsole(`Player ${this.id} tried moving ${directionToString(turn.move)} but ran into ${wallToString(maze[this.x][this.y].getWall(turn.move), true)}.`);
+				}
+			} else if(turn.use !== null){
+				// Weapons only
+				printConsole(`Player ${this.id} ${weaponUse}.`);
 			}
 
 			resolve();

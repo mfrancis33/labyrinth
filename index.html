@@ -49,8 +49,6 @@
 					<option value="g">Gargantuan (15-18)</option>
 				</select>
 			</div>
-			<label for="input-show-players">Show players</label>
-			<label><input type="checkbox" name="show-players" id="input-show-players"> Show players</label>
 			<hr class="row">
 			<h3 class="row">Additions</h3>
 			<p>World Features</p>
@@ -105,9 +103,14 @@
 					<p>Health: <span data-id="health">full</span></p>
 				</div>
 				<form id="controls">
+					<style>
+						[data-check="no"] ~ * {
+							display: none;
+						}
+					</style>
 					<hr>
 					<fieldset>
-						<legend><h3><label><input type="checkbox" id="turn-move" name="move" checked> Move</label></h3></legend>
+						<legend data-check="yes"><h3><label><input type="checkbox" id="turn-move" name="move" checked> Move</label></h3></legend>
 						<div class="joystick">
 							<span></span>
 							<span id="move-up">&uarr;</span>
@@ -122,7 +125,7 @@
 						<input type="hidden" name="move-direciton" id="move-direction">
 					</fieldset>
 					<fieldset>
-						<legend><h3><label><input type="checkbox" id="turn-use" name="use"> Use Weapon</label></h3></legend>
+						<legend data-check="no"><h3><label><input type="checkbox" id="turn-use" name="use"> Use Weapon</label></h3></legend>
 						<style>
 							select[data-value="knife"] ~ * {
 								display: none;
