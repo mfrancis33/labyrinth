@@ -215,7 +215,7 @@ function generateFeatures(features){
 			do {
 				x = randomInt(0, size - 1);
 				y = randomInt(0, size - 1);
-			} while((x !== treasureX && y !== treasureY) && maze[x][y].features.findIndex(feature => feature.name == "wormhole") > -1);
+			} while((x === treasureX && y === treasureY) || maze[x][y].features.findIndex(feature => feature.name == "wormhole") > -1);
 			let wormhole = new Wormhole(x, y, i+1);
 			maze[x][y].features.push(wormhole);
 			wormholeStore.push(wormhole);
@@ -236,7 +236,25 @@ function generateFeatures(features){
 		// Figure out how many traps we want of each type
 		let numCrossbowTraps = randomInt(0, Math.round(size / 5));
 		let numPitfallTraps = randomInt(0, Math.round(size / 5));
-		// 
+		// Generate traps
+		for(let i = 0; i < numCrossbowTraps; i++){
+			let x, y;
+			do {
+				x = randomInt(0, size - 1);
+				y = randomInt(0, size - 1);
+			} while((x === treasureX && y === treasureY) || maze[x][y].features.findIndex(feature => feature.name.indexOf("trap")) > -1);
+			let trap = new CrossbowTrap(x, y);
+			maze[x][y].features.push(trap);
+		}
+		for(let i = 0; i < numPitfallTraps; i++){
+			let x, y;
+			do {
+				x = randomInt(0, size - 1);
+				y = randomInt(0, size - 1);
+			} while((x === treasureX && y === treasureY) || maze[x][y].features.findIndex(feature => feature.name.indexOf("trap")) > -1);
+			let trap = new PitfallTrap(x, y);
+			maze[x][y].features.push(trap);
+		}
 	}
 }
 
@@ -244,9 +262,19 @@ function generateFeatures(features){
  * Places players within the maze
  */
 function generatePlayers(){
+	let x, y;
+	let placed = false;
+	do {
+		x = randomInt(0, maze.length - 1);
+		y = randomInt(0, maze.length - 1);
+		if(maze[x][y].features.length === 0 && distance(x, y, treasure.x, treasure.y) > maze.length / 3){
+			placed = true;
+		}
+	} while(!placed);
+
 	playerList = [
 		// Start out empty except first player
-		new UserPlayer(randomInt(0, maze.length - 1), randomInt(0, maze.length - 1))
+		new UserPlayer(x, y)
 	];
 	
 	elemPlayers.innerHTML = "";
@@ -277,17 +305,12 @@ function generatePlayers(){
 		
 		elemPlayers.appendChild(container);
 
-		let placed = false;
-		let x, y;
-		let count = 0;
 		do {
 			x = randomInt(0, maze.length - 1);
 			y = randomInt(0, maze.length - 1);
-			if(maze[x][y].features.length === 0 && Math.ceil(distance(x, y, treasure.x, treasure.y)) > maze.length / 3){
+			if(maze[x][y].features.length === 0 && distance(x, y, treasure.x, treasure.y) > maze.length / 3){
 				placed = true;
 			}
-			count++;
-			if(count > 50) break;
 		} while(!placed);
 		playerList.push(new Player(i, x, y, new RandomAI()));
 	}
