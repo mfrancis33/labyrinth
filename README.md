@@ -1,6 +1,6 @@
 # Labyrinth
 
-My own HTML5/JavaScript single-player version of the paper-and-pencil game of the [same name](https://en.wikipedia.org/wiki/Labyrinth_(paper-and-pencil_game)). A little challenge/fun personal project I made for myself.
+My own HTML5/JavaScript single-player version of the paper-and-pencil game of the [same name](https://en.wikipedia.org/wiki/Labyrinth_(paper-and-pencil_game)). A little challenge/fun personal project I made for myself. ***EXTREMELY UNFINISHED***
 
 ## Gameplay
 The core gameplay is quite simple: you are in a maze, the details of which are mostly unknown to you. You know that there is treasure in the maze and an exit. Your goal is to get the treasure and escape the maze.
